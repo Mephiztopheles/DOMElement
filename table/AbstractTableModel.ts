@@ -1,4 +1,4 @@
-import StringProperty        from "../../../node_modules/@mephiztopheles/properties/properties/StringProperty.js";
+import StringProperty        from "node_modules/@mephiztopheles/properties/properties/StringProperty.js";
 import Component             from "../Component.js";
 import { AbstractRowSorter } from "./AbstractRowSorter.js";
 import { RowFilter }         from "./RowFilter";

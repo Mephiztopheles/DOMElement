@@ -2,43 +2,42 @@ const pnum    = ( /[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/ ).source;
 const rcssNum = new RegExp( "^(?:([+-])=|)(" + pnum + ")([a-z%]*)$", "i" );
 
 let
-
     rcustomProp        = /^--/,
     cssNormalTransform = {
         letterSpacing: "0",
         fontWeight   : "400"
     },
-
     cssPrefixes        = [ "Webkit", "Moz", "ms" ],
     emptyStyle         = document.createElement( "div" ).style;
 
 // Return a css property mapped to a potentially vendor prefixed property
-function vendorPropName( name ) {
+function vendorPropName ( name ) {
 
     // Shortcut for names that are not vendor prefixed
-    if ( name in emptyStyle ) {
+    if ( name in emptyStyle )
         return name;
-    }
+
 
     // Check for vendor prefixed names
     var capName = name[ 0 ].toUpperCase() + name.slice( 1 ),
         i       = cssPrefixes.length;
 
     while ( i-- ) {
+
         name = cssPrefixes[ i ] + capName;
-        if ( name in emptyStyle ) {
+        if ( name in emptyStyle )
             return name;
-        }
     }
 }
 
 // Return a property mapped along what Style.cssProps suggests or to
 // a vendor prefixed property.
-function finalPropName( name ) {
+function finalPropName ( name ) {
+
     var ret = Style.cssProps[ name ];
-    if ( !ret ) {
+    if ( !ret )
         ret = Style.cssProps[ name ] = vendorPropName( name ) || name;
-    }
+
     return ret;
 }
 
@@ -46,18 +45,18 @@ var rmsPrefix  = /^-ms-/,
     rdashAlpha = /-([a-z])/g;
 
 // Used by camelCase as callback to replace()
-function fcamelCase( all, letter ) {
+function fcamelCase ( all, letter ) {
     return letter.toUpperCase();
 }
 
 // Convert dashed to camelCase; used by the css and data modules
 // Support: IE <=9 - 11, Edge 12 - 15
 // Microsoft forgot to hump their vendor prefix (#9572)
-function camelCase( string ) {
+function camelCase ( string ) {
     return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 }
 
-function getStyles( elem ) {
+function getStyles ( elem ) {
 
     // Support: IE <=11 only, Firefox <=30 (#15098, #14150)
     // IE throws on elements created in popups
@@ -70,7 +69,8 @@ function getStyles( elem ) {
     return view.getComputedStyle( elem );
 }
 
-function adjustCSS( elem, prop, valueParts, tween? ) {
+function adjustCSS ( elem, prop, valueParts, tween? ) {
+
     var adjusted, scale,
         maxIterations = 20,
         currentValue  = tween ?
@@ -105,9 +105,9 @@ function adjustCSS( elem, prop, valueParts, tween? ) {
             // Evaluate and update our best guess (doubling guesses that zero out).
             // Finish if the scale equals or crosses 1 (making the old*new product non-positive).
             Style.style( elem, prop, initialInUnit + unit );
-            if ( ( 1 - scale ) * ( 1 - ( scale = currentValue() / initial || 0.5 ) ) <= 0 ) {
+            if ( ( 1 - scale ) * ( 1 - ( scale = currentValue() / initial || 0.5 ) ) <= 0 )
                 maxIterations = 0;
-            }
+
             initialInUnit = initialInUnit / scale;
 
         }
@@ -137,7 +137,8 @@ function adjustCSS( elem, prop, valueParts, tween? ) {
     return adjusted;
 }
 
-function curCSS( elem, name, computed? ) {
+function curCSS ( elem, name, computed? ) {
+
     let ret;
 
     computed = computed || getStyles( elem );
@@ -146,11 +147,11 @@ function curCSS( elem, name, computed? ) {
     //   .css('filter') (IE 9 only, #12537)
     //   .css('--customProperty) (#3144)
     if ( computed ) {
+
         ret = computed.getPropertyValue( name ) || computed[ name ];
 
-        if ( ret === "" && !Style.contains( elem.ownerDocument, elem ) ) {
+        if ( ret === "" && !Style.contains( elem.ownerDocument, elem ) )
             ret = Style.style( elem, name );
-        }
     }
 
     return ret !== undefined ?
@@ -182,6 +183,7 @@ export class Style {
     static cssHooks  = {
         opacity: {
             get: function ( elem, computed ) {
+
                 if ( computed ) {
 
                     // We should always get a number back from opacity
@@ -192,34 +194,33 @@ export class Style {
         }
     };
 
-    static css( elem, name, extra?, styles? ) {
+    static css ( elem, name, extra?, styles? ) {
+
         let val, num, hooks,
             origName     = camelCase( name ),
             isCustomProp = rcustomProp.test( name );
 
-        if ( !isCustomProp ) {
+        if ( !isCustomProp )
             name = finalPropName( origName );
-        }
+
 
         hooks = Style.cssHooks[ name ] || Style.cssHooks[ origName ];
 
         // If a hook was provided get the computed value from there
-        if ( hooks && "get" in hooks ) {
+        if ( hooks && "get" in hooks )
             val = hooks.get( elem, true, extra );
-        }
 
         // Otherwise, if a way to get the computed value exists, use that
-        if ( val === undefined ) {
+        if ( val === undefined )
             val = curCSS( elem, name, styles );
-        }
 
         // Convert "normal" to computed value
-        if ( val === "normal" && name in cssNormalTransform ) {
+        if ( val === "normal" && name in cssNormalTransform )
             val = cssNormalTransform[ name ];
-        }
 
         // Make numeric if forced or a qualifier was provided and val looks numeric
         if ( extra === "" || extra ) {
+
             num = parseFloat( val );
             return extra === true || isFinite( num ) ? num || 0 : val;
         }
@@ -227,18 +228,18 @@ export class Style {
         return val;
     }
 
-    static contains( a, b ) {
+    static contains ( a, b ) {
+
         let adown = a.nodeType === 9 ? a.documentElement : a,
             bup   = b && b.parentNode;
         return a === bup || !!( bup && bup.nodeType === 1 && adown.contains( bup ) );
     }
 
-    static style( elem, name, value?, extra? ) {
+    static style ( elem, name, value?, extra? ) {
 
         // Don't set styles on text and comment nodes
-        if ( !elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style ) {
+        if ( !elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style )
             return;
-        }
 
         // Make sure that we're working with the right name
         let ret, type, hooks,
@@ -249,15 +250,15 @@ export class Style {
         // Make sure that we're working with the right name. We don't
         // want to query the value if it is a CSS custom property
         // since they are user-defined.
-        if ( !isCustomProp ) {
+        if ( !isCustomProp )
             name = finalPropName( origName );
-        }
 
         // Gets hook for the prefixed version, then unprefixed version
         hooks = Style.cssHooks[ name ] || Style.cssHooks[ origName ];
 
         // Check if we're setting a value
         if ( value !== undefined ) {
+
             type = typeof value;
 
             // Convert "+=" or "-=" to relative numbers (#7345)
@@ -269,41 +270,37 @@ export class Style {
             }
 
             // Make sure that null and NaN values aren't set (#7116)
-            if ( value == null || value !== value ) {
+            if ( value == null || value !== value )
                 return;
-            }
+
 
             // If a number was passed in, add the unit (except for certain CSS properties)
-            if ( type === "number" ) {
+            if ( type === "number" )
                 value += ret && ret[ 3 ] || ( Style.cssNumber[ origName ] ? "" : "px" );
-            }
+
 
             // If a hook was provided, use that value, otherwise just set the specified value
             if ( !hooks || !( "set" in hooks ) ||
                 ( value = hooks.set( elem, value, extra ) ) !== undefined ) {
 
-                if ( isCustomProp ) {
+                if ( isCustomProp )
                     style.setProperty( name, value );
-                } else {
+                else
                     style[ name ] = value;
-                }
             }
 
         } else {
 
             // If a hook was provided get the non-computed value from there
-            if ( hooks && "get" in hooks &&
-                ( ret = hooks.get( elem, false, extra ) ) !== undefined ) {
-
+            if ( hooks && "get" in hooks && ( ret = hooks.get( elem, false, extra ) ) !== undefined )
                 return ret;
-            }
 
             // Otherwise just get the value from the style object
             return style[ name ];
         }
     }
 
-    static getStyles( elem: any ) {
+    static getStyles ( elem: any ) {
         return getStyles( elem );
     }
 }

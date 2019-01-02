@@ -1,5 +1,5 @@
-import StringProperty from "../../node_modules/@mephiztopheles/properties/properties/StringProperty.js";
-import Property       from "../../node_modules/@mephiztopheles/properties/Property.js";
+import StringProperty from "node_modules/@mephiztopheles/properties/properties/StringProperty.js";
+import Property       from "node_modules/@mephiztopheles/properties/Property.js";
 import DOMElement     from "./DOMElement.js";
 
 export default class Button extends DOMElement {

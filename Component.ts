@@ -75,6 +75,7 @@ export default class Component extends DOMElement {
     }
 
     clear () {
+
         while ( this.firstChild )
             this.remove( this.firstChild );
     }

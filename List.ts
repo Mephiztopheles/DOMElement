@@ -1,5 +1,5 @@
 import Component     from "./Component.js";
-import ArrayProperty from "../../node_modules/@mephiztopheles/properties/properties/ArrayProperty.js";
+import ArrayProperty from "node_modules/@mephiztopheles/properties/properties/ArrayProperty.js";
 import DOMElement    from "./DOMElement.js";
 
 export default class List<T extends Object> extends Component {

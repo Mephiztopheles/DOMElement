@@ -1,112 +1,16 @@
-import StringProperty  from "../../node_modules/@mephiztopheles/properties/properties/StringProperty.js";
-import Component       from "./Component.js";
-import { Style }       from "./helper/Style.js";
-import Controller      from "./helper/Controller.js";
-import ASTCompiler     from "./helper/ASTCompiler.js";
-import BooleanProperty from "../../node_modules/@mephiztopheles/properties/properties/BooleanProperty.js";
-import Logger          from "../C/System/Logger.js";
-import ErrorDialog     from "../C/System/ErrorDialog.js";
-import Locale          from "../C/System/locale/Locale.js";
+import StringProperty           from "node_modules/@mephiztopheles/properties/properties/StringProperty.js";
+import Component                from "./Component.js";
+import { Style }                from "./helper/Style.js";
+import Controller               from "./helper/Controller.js";
+import ASTCompiler              from "node_modules/@mephiztopheles/astcompiler/ASTCompiler.js";
+import BooleanProperty          from "node_modules/@mephiztopheles/properties/properties/BooleanProperty.js";
+import { eventTypesInData }     from "./helper/eventTypes.js";
+import { getCached, setCached } from "./helper/cache.js";
 
 
-class DOM {
-
-}
-
-const cache                                                         = new WeakMap();
-const logger                                                        = new Logger( DOM );
-const eventTypesInData: { name: string, listenDisabled: boolean }[] = [ {
-    name          : "click",
-    listenDisabled: true
-}, {
-    name          : "drop",
-    listenDisabled: true
-}, {
-    name          : "dragenter",
-    listenDisabled: true
-}, {
-    name          : "hover",
-    listenDisabled: false
-}, {
-    name          : "dblclick",
-    listenDisabled: true
-}, {
-    name          : "keydown",
-    listenDisabled: true
-} ];
-
-function getCached ( element: Element, name ) {
-
-    let cached = cache.get( element );
-
-    if ( cached == null )
-        cache.set( element, cached = {} );
-
-    let data = cached[ name ];
-    if ( data === undefined )
-        data = dataAttr( element, name );
-
-    return data;
-}
-
-function setCached ( element: Element, name: string, value: any ) {
-
-    let cached = cache.get( element );
-
-    if ( cached == null )
-        cache.set( element, cached = {} );
-
-    cached[ name ] = value;
-}
-
-function getData ( data ) {
-    if ( data === "true" ) {
-        return true;
-    }
-
-    if ( data === "false" ) {
-        return false;
-    }
-
-    if ( data === "null" ) {
-        return null;
-    }
-
-    // Only convert to a number if it doesn't change the string
-    if ( data === +data + "" ) {
-        return +data;
-    }
-
-    if ( rbrace.test( data ) ) {
-        return JSON.parse( data );
-    }
-
-    return data;
-}
-
-function dataAttr ( elem, key ) {
-
-    let name;
-
-    // If nothing was found internally, try to fetch any
-    // data from the HTML5 data-* attribute
-
-    name     = "data-" + key.replace( rmultiDash, "-$&" ).toLowerCase();
-    let data = elem.getAttribute( name );
-
-    if ( typeof data === "string" ) {
-
-        try {
-            data = getData( data );
-        } catch ( e ) {
-        }
-
-    } else {
-        data = undefined;
-    }
-
-    return data;
-}
+let errorHandler = ( exception ) => {
+    console.error( "Error while handling event", exception );
+};
 
 function getClass ( elem ) {
     return elem.getAttribute && elem.getAttribute( "class" ) || "";
@@ -129,9 +33,7 @@ function classesToArray ( value ) {
 
 const nodeMap = new WeakMap();
 
-const rbrace         = /^(?:{[\w\W]*}|\[[\w\W]*])$/,
-      rmultiDash     = /[A-Z]/g,
-      rnothtmlwhite  = ( /[^\x20\t\r\n\f]+/g ),
+const rnothtmlwhite  = ( /[^\x20\t\r\n\f]+/g ),
       rtypenamespace = /^([^.]*)(?:\.(.+)|)/;
 
 export interface Attributes {
@@ -151,6 +53,14 @@ export default abstract class DOMElement {
     protected listeners: Map<string, Array<EventHandle>> = new Map();
     protected controller: Controller;
     public disabled: BooleanProperty                     = new BooleanProperty( false );
+
+    public static registerErrorHandler ( handler: ( exception: Error ) => void ) {
+
+        if ( handler == null )
+            throw new Error( "'handler' cannot be null!" );
+
+        errorHandler = handler;
+    }
 
     // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
     constructor ( public readonly element?: Element, attributes: Attributes = {} ) {
@@ -233,10 +143,8 @@ export default abstract class DOMElement {
 
                         return this._parse( data, { event } );
 
-                    } catch ( e ) {
-
-                        logger.error( `Error while running ${entry.name} handler`, e );
-                        new ErrorDialog( Locale.getProperty( "System.error" ), Locale.get( "DOMElement.error.action" ), this.controller.window ).show();
+                    } catch ( exception ) {
+                        errorHandler( exception );
                     }
                 } );
             }

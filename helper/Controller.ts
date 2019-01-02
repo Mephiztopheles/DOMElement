@@ -1,8 +1,6 @@
-import Component      from "../Component.js";
-import Exception      from "../../C/System/Exception.js";
-import DOMElement     from "../DOMElement.js";
-import InternalWindow from "../../C/System/InternalWindow/InternalWindow.js";
-import Property       from "../../../node_modules/@mephiztopheles/properties/Property.js";
+import Component  from "../Component.js";
+import DOMElement from "../DOMElement.js";
+import Property   from "node_modules/@mephiztopheles/properties/Property.js";
 
 
 export default abstract class Controller {
@@ -11,14 +9,10 @@ export default abstract class Controller {
 
     private bound: boolean = false;
 
-    constructor ( public readonly window?: InternalWindow ) {
-
-    }
-
     bind ( element: Component ) {
 
         if ( this.bound )
-            throw new Exception( `Controller ${this.constructor.name} already bound` );
+            throw new Error( `Controller ${this.constructor.name} already bound` );
 
         bind( this, element );
 

@@ -21,6 +21,7 @@ export class AndFilter<T> implements RowFilter<T> {
     }
 
     removeFilter( filter: RowFilter<T> ) {
+
         let index = this.filters.indexOf( filter );
 
         if ( index != -1 )
@@ -48,6 +49,7 @@ export class OrFilter<T> implements RowFilter<T> {
     }
 
     removeFilter( filter: RowFilter<T> ) {
+
         let index = this.filters.indexOf( filter );
 
         if ( index != -1 )

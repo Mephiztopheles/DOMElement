@@ -1,14 +1,14 @@
 {
-    "name"           : "fancyos",
+    "name"           : "@mephiztopheles/dom-element",
     "version"        : "0.0.1",
     "main"           : "index.js",
-    "repository":      {
+    "repository"     : {
         "type": "git",
-        "url":  "git+https://github.com/Mephiztopheles/DOMElement.git"
+        "url" : "git+https://github.com/Mephiztopheles/DOMElement.git"
     },
     "dependencies"   : {
-        "@mephiztopheles/properties": "1.3.6",
-        "@types/jquery"             : "3.3.22"
+        "@mephiztopheles/properties" : "1.3.6",
+        "@mephiztopheles/astcompiler": "1.0.0"
     },
     "devDependencies": {
         "@mephiztopheles/test": "*"
